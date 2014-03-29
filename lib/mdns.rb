@@ -12,7 +12,7 @@ class MDNS
     def start
       @socket = UDPSocket.new
       @socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
-      @socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEPORT, true)
+      @socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEPORT, true) if Socket.const_defined?("SO_REUSEPORT")
       ip_mreq = IPAddr.new(MULTICAST_IP).hton + IPAddr.new('0.0.0.0').hton
       @socket.setsockopt(Socket::IPPROTO_IP, Socket::IP_ADD_MEMBERSHIP, ip_mreq)
       @socket.setsockopt(Socket::IPPROTO_IP, Socket::IP_TTL, 255)
