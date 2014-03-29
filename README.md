@@ -1,5 +1,7 @@
 # mDNS
 
+[![Gem Version](https://badge.fury.io/rb/mdns.png)](https://rubygems.org/gems/mdns) [![Build Status](https://travis-ci.org/chendo/mdns.png)](https://travis-ci.org/chendo/mdns)
+
 Ever wanted to create your own custom `.local` hostnames on your network? Now you can!
 
 This gem implements a super naive mDNS server that listens for queries matching entries you add, and responds to them.

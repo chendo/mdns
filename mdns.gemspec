@@ -7,10 +7,10 @@ Gem::Specification.new do |spec|
   spec.name          = "mdns"
   spec.version       = MDNS::VERSION
   spec.authors       = ["Jack Chen (chendo)"]
-  spec.email         = ["github@chen.do"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
-  spec.homepage      = ""
+  spec.email         = ["github+mdns@chen.do"]
+  spec.summary       = %q{Create your own .local address with mdns!}
+  spec.description   = %q{mdns allows you to create your own .local hostnames and point them to whatever IP you want.}
+  spec.homepage      = "https://github.com/chendo/mdns"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
