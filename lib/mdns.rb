@@ -42,7 +42,6 @@ class MDNS
     end
 
     def respond_to(query)
-      puts "#{Time.now} Responding to query"
       record = records[query.question.first.qName.downcase]
       respond_with(record)
     end
