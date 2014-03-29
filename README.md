@@ -30,16 +30,18 @@ Or install it yourself as:
 
 ```ruby
 require "mdns"
-MDNS.add_record(Net::DNS::RR.new("leet.local. 60 A 10.0.13.37")) # Add a record for leet.local to resolve to 10.0.13.37 with a TTL of 60 seconds
-MDNS.add_record("leet.local. 60 A 10.0.13.37"))                  # Can pass in a string too
-
+MDNS.add_record("leet.local", 60, "10.0.13.37") # Add a record for leet.local to resolve to 10.0.13.37 with a TTL of 60 seconds
 MDNS.start                                                       # Start listening
 ```
 
 ## Caveats
 
-* Does not "unpublish" a record when stopping. Couldn't seem to find an example response.
+* Does not "unpublish" a record when stopping.
 * Only supports A records
+
+## Contributing
+
+Contributions greatly appreciated! Fork and send a pull request.
 
 ## License
 

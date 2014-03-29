@@ -1,9 +1,12 @@
 require "mdns/version"
-require "net/dns"
+require "resolv"
+require "ipaddr"
 
 class MDNS
   MULTICAST_IP = '224.0.0.251'
   MDNS_PORT = 5353
+
+  class Record < Struct.new(:host, :ttl, :ip); end
 
   class << self
     def start
@@ -19,21 +22,24 @@ class MDNS
       @thr = Thread.new do
         loop do
           data = @socket.recv(1024)
-          next unless data[0...4] == "\x00\x00\x00\x00" # Filter out non-queries
           packet = begin
-            Net::DNS::Packet::parse(data)
-          rescue => e
-            # Net::DNS::Packet doesn't handle a bunch of mDNS packets
+            Resolv::DNS::Message.decode(data)
+          rescue Resolv::DNS::DecodeError
           end
           next if packet.nil?
-          if packet.header.query? && packet.question.any? { |q| hosts.include?(q.qName.downcase) && q.qType.to_s == 'A' }
-            respond_to(packet)
+          if packet.qr == 0
+            hosts = packet.question.map(&:first).map(&:to_s)
+            matches = self.hosts & hosts
+            matches.each do |host|
+              respond(records[host])
+            end
           end
         end
       end
 
+      # Broadcast records
       records.values.each do |record|
-        respond_with(record)
+        respond(record)
       end
 
       at_exit do
@@ -41,28 +47,23 @@ class MDNS
       end
     end
 
-    def respond_to(query)
-      record = records[query.question.first.qName.downcase]
-      respond_with(record)
-    end
-
-    def respond_with(record)
+    def respond(record)
+      return if !@socket || @socket.closed?
       # I have no idea what I'm doing
-      response = Net::DNS::Packet.new(record.name)
-      response.header.qr = true
-      response.header.aa = true
-      response.header.anCount = 1
-      response.header.arCount = 1
-      response.answer = record
-      @socket.send(response.data, 0, MULTICAST_IP, MDNS_PORT)
+      response        = Resolv::DNS::Message.new
+      response.qr     = 1
+      response.opcode = 0
+      response.aa     = 1
+      response.rd     = 0
+      response.ra     = 0
+      response.rcode  = 0
+      response.add_answer(record.host, record.ttl, Resolv::DNS::Resource::IN::A.new(record.ip))
+      @socket.send(response.encode, 0, MULTICAST_IP, MDNS_PORT)
     end
 
-    def add_record(record)
-      if record.is_a?(String)
-        record = Net::DNS::RR.new(record)
-      end
-      records[record.name.downcase] = record
-      respond_with(record) if @socket && !@socket.closed?
+    def add_record(host, ttl, ip)
+      records[host] = Record.new(host, ttl, ip)
+      respond(records[host])
     end
 
     def records
