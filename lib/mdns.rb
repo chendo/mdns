@@ -58,6 +58,9 @@ class MDNS
     end
 
     def add_record(record)
+      if record.is_a?(String)
+        record = Net::DNS::RR.new(record)
+      end
       records[record.name.downcase] = record
       respond_with(record) if @socket && !@socket.closed?
     end

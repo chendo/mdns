@@ -4,6 +4,12 @@ Ever wanted to create your own custom `.local` hostnames on your network? Now yo
 
 This gem implements a super naive mDNS server that listens for queries matching entries you add, and responds to them.
 
+This gem was created by observing existing mDNS queries and responses. I did not read the RFC, so it might not follow the spec properly.
+
+Tested on OS X Mavericks.
+
+Should work with any client that implements mDNS resolver.
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -23,8 +29,15 @@ Or install it yourself as:
 ```ruby
 require "mdns"
 MDNS.add_record(Net::DNS::RR.new("leet.local. 60 A 10.0.13.37")) # Add a record for leet.local to resolve to 10.0.13.37 with a TTL of 60 seconds
+MDNS.add_record("leetest.local. 60 A 10.0.13.37")) # Can pass in a string too
+
 MDNS.start                                                       # Start listening
 ```
+
+## Caveats
+
+* Does not "unpublish" a record when stopping. Couldn't seem to find an example response.
+* Only supports A records
 
 ## License
 
