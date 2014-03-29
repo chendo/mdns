@@ -18,8 +18,8 @@ class MDNS
       Thread.abort_on_exception = true
       @thr = Thread.new do
         loop do
-          data = @socket.recvfrom(1024)
-          next unless data[0...8] == "\x00\x00\x00\x00\x00\x01\x00\x00"
+          data = @socket.recv(1024)
+          next unless data[0...4] == "\x00\x00\x00\x00" # Filter out non-queries
           packet = begin
             Net::DNS::Packet::parse(data)
           rescue => e
