@@ -4,6 +4,11 @@ require 'resolv'
 describe MDNS do
   let(:domain) { "foo-bar-#{rand(1000)}.local." }
   let(:ip) { "10.10.10.10" }
+
+  before do
+    MDNS.reset
+  end
+
   describe "integration test" do
 
     context "MDNS not running" do
@@ -18,10 +23,6 @@ describe MDNS do
       before do
         MDNS.add_record(Net::DNS::RR.new("#{domain} 60 A #{ip}"))
         MDNS.start
-      end
-
-      after do
-        MDNS.stop
       end
 
       it "does resolve" do

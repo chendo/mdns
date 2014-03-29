@@ -19,6 +19,7 @@ class MDNS
       @thr = Thread.new do
         loop do
           data = @socket.recvfrom(1024)
+          next unless data[0...8] == "\x00\x00\x00\x00\x00\x01\x00\x00"
           packet = begin
             Net::DNS::Packet::parse(data)
           rescue => e
@@ -71,6 +72,11 @@ class MDNS
 
     def hosts
       records.keys
+    end
+
+    def reset
+      @records = nil
+      stop
     end
 
     def stop
