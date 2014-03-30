@@ -25,6 +25,9 @@ class MDNS
           packet = begin
             Resolv::DNS::Message.decode(data)
           rescue Resolv::DNS::DecodeError
+            nil # Invalid DNS data
+          rescue
+            nil # Sometimes it errors out due to non DNS data
           end
           next if packet.nil?
           if packet.qr == 0
