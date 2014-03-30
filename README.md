@@ -8,7 +8,7 @@ This gem implements a super naive mDNS server that listens for queries matching 
 
 This gem was created by observing existing mDNS queries and responses. I did not read the RFC, so it might not follow the spec properly.
 
-Tested on OS X Mavericks.
+Tested on OS X Mavericks, Ruby 2.0+. Should work with older versions of Ruby and other *nix OSes.
 
 Should work with any client that implements mDNS resolver.
 
