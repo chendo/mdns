@@ -2,20 +2,31 @@ require 'spec_helper'
 require 'resolv'
 
 describe MDNS do
-  let(:host) { "foo-bar-#{rand(1000)}.local." }
+  let(:host) { "foo-bar-#{rand(1000)}.local" }
   let(:ip) { "10.10.10.10" }
 
   before do
     MDNS.reset
   end
 
+  def resolve(hostname)
+    results = []
+    begin
+      Timeout.timeout(5) do
+        Resolv::MDNS.new.each_address(hostname) do |addr|
+          results << addr.to_s
+        end
+      end
+    rescue Timeout::Error
+    end
+    results
+  end
+
   describe "integration test" do
 
     context "MDNS not running" do
       it "does not resolve" do
-        expect do
-          Socket.gethostbyname(host)
-        end.to raise_error(SocketError)
+        expect(resolve(host)).to be_empty
       end
     end
 
@@ -26,7 +37,7 @@ describe MDNS do
       end
 
       it "does resolve" do
-        expect(IPSocket.getaddress(host)).to eq(ip)
+        expect(resolve(host)).to eq([ip])
       end
     end
   end

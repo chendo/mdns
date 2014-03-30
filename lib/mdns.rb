@@ -21,7 +21,7 @@ class MDNS
       Thread.abort_on_exception = true
       @thr = Thread.new do
         loop do
-          data = @socket.recv(1024)
+          data, address = @socket.recvfrom(1024)
           packet = begin
             Resolv::DNS::Message.decode(data)
           rescue Resolv::DNS::DecodeError
@@ -34,7 +34,7 @@ class MDNS
             hosts = packet.question.map(&:first).map(&:to_s)
             matches = self.hosts & hosts
             matches.each do |host|
-              respond(records[host])
+              respond(records[host], packet, address[3], address[1])
             end
           end
         end
@@ -50,18 +50,21 @@ class MDNS
       end
     end
 
-    def respond(record)
+    def respond(record, query = nil, ip = MULTICAST_IP, port = MDNS_PORT)
       return if !@socket || @socket.closed?
       # I have no idea what I'm doing
-      response        = Resolv::DNS::Message.new
+      response        = Resolv::DNS::Message.new(query ? query.id : 0)
       response.qr     = 1
       response.opcode = 0
       response.aa     = 1
       response.rd     = 0
       response.ra     = 0
       response.rcode  = 0
+      if query
+        response.add_question(*query.question.first)
+      end
       response.add_answer(record.host, record.ttl, Resolv::DNS::Resource::IN::A.new(record.ip))
-      @socket.send(response.encode, 0, MULTICAST_IP, MDNS_PORT)
+      @socket.send(response.encode, 0, ip, port)
     end
 
     def add_record(host, ttl, ip)
