@@ -64,7 +64,7 @@ class MDNS
         response.add_question(*query.question.first)
       end
       response.add_answer(record.host, record.ttl, Resolv::DNS::Resource::IN::A.new(record.ipv4))
-      response.add_answer(record.host, record.ttl, Resolv::DNS::Resource::IN::AAAA.new(record.ipv6)) if record.ipv6
+      response.add_additional(record.host, record.ttl, Resolv::DNS::Resource::IN::AAAA.new(record.ipv6)) if record.ipv6
       @socket.send(response.encode, 0, ip, port)
     end
 
