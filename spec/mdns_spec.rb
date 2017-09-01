@@ -32,12 +32,12 @@ describe MDNS do
 
     context "MDNS is running" do
       before do
-        MDNS.add_record(host, 120, ip)
+        MDNS.add_record(host, 120, ip, "fe80::1")
         MDNS.start
       end
 
       it "does resolve" do
-        expect(resolve(host)).to eq([ip])
+        expect(resolve(host)).to eq([ip, "FE80::1"])
       end
     end
   end
